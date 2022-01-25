@@ -18,6 +18,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TicketSystem.Middleware;
 using Microsoft.OpenApi.Models;
+using NSwag.Generation.Processors.Security;
 
 namespace TicketSystem
 {
@@ -34,59 +35,6 @@ namespace TicketSystem
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-
-            #region Swagger Configuration
-            /*services.AddSwaggerGen(swagger =>
-            {
-                //This is to generate the Default UI of Swagger Documentation
-                swagger.SwaggerDoc("v1", new OpenApiInfo
-                {
-                    Version = "v1",
-                    Title = "JWT Token Authentication API",
-                    Description = "ASP.NET Core 3.0 Web API"
-                });
-                // To Enable authorization using Swagger (JWT)
-                swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 12345abcdef\"",
-                });
-                swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                          new OpenApiSecurityScheme
-                            {
-                                Reference = new OpenApiReference
-                                {
-                                    Type = ReferenceType.SecurityScheme,
-                                    Id = "Bearer"
-                                }
-                            },
-                            new string[] {}
-                    }
-                });
-            });*/
-            #endregion
-            /*services
-            .AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            })
-            .AddCookie(options =>
-            {
-                // 以下這兩個設定可有可無
-                //options.AccessDeniedPath = "/LoginDB/AccessDeny";   // 拒絕，不允許登入，會跳到這一頁。
-                options.LoginPath = "/login";     // 登入頁。
-                //options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Unspecified;
-                options.Cookie.Name = "TicketSystem";
-                options.Cookie.HttpOnly = true;
-            });*/
 
             services.Configure<CookiePolicyOptions>(options =>
             {
@@ -145,14 +93,21 @@ namespace TicketSystem
 
             services.AddMvc();
 
-            /*services.AddCors(options =>
+            
+            services.AddOpenApiDocument(settings =>
             {
-                options.AddDefaultPolicy(builder =>
-                    builder.SetIsOriginAllowed(_ => true)
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials());
-            });*/
+                settings.Title = "Ticket System";
+                settings.AddSecurity("輸入身份認證Token", Enumerable.Empty<string>(), new NSwag.OpenApiSecurityScheme()
+                {
+                    Description = "JWT認證 請輸入Bearer {token}",
+                    Name = "Authorization",
+                    In = NSwag.OpenApiSecurityApiKeyLocation.Header,
+                    Type = NSwag.OpenApiSecuritySchemeType.ApiKey
+                });
+
+                settings.OperationProcessors.Add(
+                    new AspNetCoreOperationSecurityScopeProcessor("JWT Token"));
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -163,6 +118,8 @@ namespace TicketSystem
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseOpenApi();    // 啟動 OpenAPI 文件
+            app.UseSwaggerUi3(); // 啟動 Swagger UI
 
             app.Use(async (context, next) =>
             {
@@ -185,21 +142,6 @@ namespace TicketSystem
             app.UseCookiePolicy();
             app.UseRouting();
             app.UseCors("allow_all");
-            //app.UseCors("VueCorsPolicy");
-            // global cors policy
-
-            //if (env.IsDevelopment())
-            //{
-
-            //    // Add global cors policy
-            //    app.UseCors(x => x
-            //        .AllowAnyMethod()
-            //        .AllowAnyHeader()
-            //        .SetIsOriginAllowed(origin => true) // allow any origin
-            //        .AllowCredentials()); // allow credentials
-            //}
-
-
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseMiddleware<JWTMiddleware>();
@@ -212,4 +154,5 @@ namespace TicketSystem
         }
     }
 }
+
 

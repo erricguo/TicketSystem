@@ -63,42 +63,7 @@ export default {
             RoleTid: '',
             selectRole: [{ text: '請選擇角色', value: '' },],
             commandSelected:[],
-            commandList: [{
-                id: 'fruits',
-                label: 'Fruits',
-                children: [{
-                    id: 'apple',
-                    label: 'Apple 🍎',
-                }, {
-                    id: 'grapes',
-                    label: 'Grapes 🍇',
-                }, {
-                    id: 'pear',
-                    label: 'Pear 🍐',
-                }, {
-                    id: 'strawberry',
-                    label: 'Strawberry 🍓',
-                }, {
-                    id: 'watermelon',
-                    label: 'Watermelon 🍉',
-                }],
-            }, {
-                id: 'vegetables',
-                label: 'Vegetables',
-                children: [{
-                    id: 'corn',
-                    label: 'Corn 🌽',
-                }, {
-                    id: 'carrot',
-                    label: 'Carrot 🥕',
-                }, {
-                    id: 'eggplant',
-                    label: 'Eggplant 🍆',
-                }, {
-                    id: 'tomato',
-                    label: 'Tomato 🍅',
-                }],
-            }],
+            commandList: [],
         }
         },
         created() {
@@ -168,7 +133,8 @@ export default {
             onSave() {
                 this.commandSelected.forEach(x => {
                     if (x.includes('MenuTid')) {
-                        console.log(x)
+                        var o = JSON.parse(x)
+
                     }
                 })
             }
