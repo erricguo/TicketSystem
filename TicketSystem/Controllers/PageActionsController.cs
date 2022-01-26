@@ -49,22 +49,6 @@ namespace TicketSystem.Controllers
                             Children = GetChildren(o, x.MenuTid)
                         }).ToList();
 
-
-            /*var result = await _context.SystemPageAction
-                        .Join(_context.SystemMenu,
-                        a => a.MenuTid,
-                        b => b.Tid,
-                        (a, b) => new SystemPageActionVM
-                        {
-                            Tid = a.Tid,
-                            MenuTid = a.MenuTid,
-                            ActionId = a.ActionId,
-                            ActionName = a.ActionName,
-                            ActionCommand = a.ActionCommand,
-                            ControlName = a.ControlName,
-                            MenuName = b.Name,
-                        }).ToListAsync();*/
-
             return Ok(new
             {
                 code = 20000,

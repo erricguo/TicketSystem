@@ -60,13 +60,6 @@ namespace TicketSystem.Controllers
                 return BadRequest();
             }
 
-            /*var user = _context.SystemUsers.Where(x => x.Tid == id).FirstOrDefault();
-            
-            if (user.Pwd != systemUsers.Pwd)
-            {
-                var pwd = CodingUtils.MD5(systemUsers.Pwd);
-                systemUsers.Pwd = pwd;
-            }*/
             systemUsers.IsActive = true;
             _context.Entry(systemUsers).State = EntityState.Modified;
 

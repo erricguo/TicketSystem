@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 //手動跳轉的頁面白名單 
 const whiteList = [
     '/'
-]; 
+];
 
 //默認不需要權限的頁面 
 export const constantRouterMap = [
@@ -16,7 +16,7 @@ export const constantRouterMap = [
         meta: {
             layout: 'full',
         },
-        component: (resolve) => require(['@/views/Login.vue'],resolve)
+        component: (resolve) => require(['@/views/Login.vue'], resolve)
     },
     {
         path: '/home',
@@ -118,7 +118,7 @@ export const asyncRouterMap = [
         component: (resolve) => require(['@/views/RoleAction.vue'], resolve)
     },
 ]
-;
+    ;
 
 
 /*const router = new VueRouter({
@@ -244,10 +244,10 @@ router.beforeEach((to, from, next) => {
         next()
         //NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
-        if (store.state.claims.Role && !store.state.claims.initRoute) { // 判断当前用户是否已拉取完user_info信息
+        if (store.state.claims.Role && !store.state.claims.initRoute) { // 判斷當前用戶是否已拉取完user_info資訊
             store.state.claims.initRoute = true
             const roles = store.state.claims.Role // note: roles must be a array! such as: ['editor','develop']
-            store.dispatch('GenerateRoutes', { roles }).then((res) => { // 根据roles权限生成可访问的路由表
+            store.dispatch('GenerateRoutes', { roles }).then((res) => { // 根據roles許可權生成可訪問的路由表
 
                 try {
                     res.forEach((item) => {
@@ -255,38 +255,38 @@ router.beforeEach((to, from, next) => {
                             router.options.routes.push(item)
                         }
                     });
-                    router.addRoutes(res) // 动态添加可访问路由表
+                    router.addRoutes(res) // 動態添加可訪問路由表
 
 
-                    next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
+                    next({ ...to, replace: true }) // hack方法 確保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
                 } catch (e) {
                     console.log('catch:', e);
                 }
-                
+
             })
         } else {
             next()
-            // 没有动态改变权限的需求可直接next() 删除下方权限判断 ↓
+            // 沒有動態改變許可權的需求可直接next() 刪除下方許可權判斷 ↓
             /*if (hasPermission(store.getters.roles, to.meta.roles)) {
                 next()//
             } else {
                 next({ path: '/401', replace: true, query: { noGoBack: true } })
             }*/
-            // 可删 ↑
+            // 可刪 ↑
         }
     }
 
 
 }),
-// ? For splash screen
-// Remove afterEach hook if you are not using splash screen
-router.afterEach(() => {
-  // Remove initial loading
-  const appLoading = document.getElementById('loading-bg')
-  if (appLoading) {
-    appLoading.style.display = 'none'
-  }
-})
+    // ? For splash screen
+    // Remove afterEach hook if you are not using splash screen
+    router.afterEach(() => {
+        // Remove initial loading
+        const appLoading = document.getElementById('loading-bg')
+        if (appLoading) {
+            appLoading.style.display = 'none'
+        }
+    })
 
 const originalPush = VueRouter.prototype.push
 VueRouter.prototype.push = function push(location, onResolve, onReject) {
@@ -295,3 +295,4 @@ VueRouter.prototype.push = function push(location, onResolve, onReject) {
 }
 
 export default router
+
