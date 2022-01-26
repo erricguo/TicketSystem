@@ -2,7 +2,7 @@
     <div>
         <b-card-code title="案件列表">
 
-            <b-button v-b-modal.modal-center @click="modalShow = !modalShow">
+            <b-button v-b-modal.modal-center @click="onNew" v-show="checkRole('add')">
                 <span>新增</span>
             </b-button>
             <!-- search input -->
@@ -33,12 +33,22 @@
 
                     <span v-if="props.column.field === 'action'">
                         <span>
-                            <b-button variant="gradient-primary" class="mr-50" @click="editRow(props)">
+                            <b-button v-show="checkRole('edit')" variant="gradient-primary" class="mr-50" @click="editRow(props)">
                                 <feather-icon icon="Edit2Icon"
                                               class="mr-50" />
                                 <span>編輯</span>
                             </b-button>
-                            <b-button variant="gradient-danger">
+                            <b-button v-show="checkRole('handle')" variant="gradient-secondary" class="mr-50" @click="editRow(props)">
+                                <feather-icon icon="Edit2Icon"
+                                              class="mr-50" />
+                                <span>接單</span>
+                            </b-button>
+                            <b-button v-show="checkRole('finish')" variant="gradient-success" class="mr-50" @click="editRow(props)">
+                                <feather-icon icon="Edit2Icon"
+                                              class="mr-50" />
+                                <span>結案</span>
+                            </b-button>
+                            <b-button v-show="checkRole('delete')" variant="gradient-danger" @click="deleteRow(props)">
                                 <feather-icon icon="TrashIcon"
                                               class="mr-50" />
                                 <span>刪除</span>
@@ -96,47 +106,57 @@
             <b-card-code title="新增案件">
 
                 <b-form @submit="onSubmit" @reset="onReset">
-                    <b-form-group id="input-group-2" label="Email" label-for="input-2">
+
+                    <b-form-group id="input-group-1" label="單別" label-for="input-1">
+                        <b-form-select id="input-1"
+                                       v-model="modalform.ticketType"
+                                       :options="selectType"
+                                       required></b-form-select>
+                    </b-form-group>
+
+                    <b-form-group id="input-group-2" label="摘要" label-for="input-2">
                         <b-form-input id="input-2"
-                                      v-model="modalform.Email"
-                                      type="email"
-                                      placeholder=""
+                                      v-model="modalform.summary"                                      
                                       required></b-form-input>
                     </b-form-group>
 
-                    <b-form-group id="input-group-1" label="帳號:" label-for="input-1">
-                        <b-form-input id="input-1"
-                                      v-model="modalform.Eid"
-                                      placeholder=""
-                                      required></b-form-input>
-                    </b-form-group>
-
-                    <b-form-group id="input-group-3" label="密碼" label-for="input-3">
+                    <b-form-group id="input-group-3" label="描述" label-for="input-3">
                         <b-form-input id="input-3"
-                                      v-model="modalform.Pwd"
-                                      type="password"
-                                      placeholder=""
-                                      required></b-form-input>
+                                      v-model="modalform.description"
+                                      ></b-form-input>
                     </b-form-group>
 
-                    <b-form-group id="input-group-4" label="姓名:" label-for="input-4">
+                    <b-form-group id="input-group-4" label="建立者" label-for="input-4">
                         <b-form-input id="input-4"
-                                      v-model="modalform.UserName"
-                                      placeholder=""
+                                      v-model="modalform.creator"
                                       required></b-form-input>
                     </b-form-group>
 
-                    <b-form-group id="input-group-5" label="用戶角色:" label-for="input-5">
+                    <b-form-group id="input-group-5" label="狀態" label-for="input-5">
                         <b-form-select id="input-5"
-                                       v-model="modalform.RoleTid"
-                                       :options="selectRole"
+                                       v-model="modalform.ticketStatus"
+                                       :options="selectStatus"
+                                       required></b-form-select>
+                    </b-form-group>
+
+                    <b-form-group id="input-group-6" label="嚴重性" label-for="input-6">
+                        <b-form-select id="input-6"
+                                       v-model="modalform.ticketSevere"
+                                       :options="selectSevere"
+                                       required></b-form-select>
+                    </b-form-group>
+
+                    <b-form-group id="input-group-7" label="優先程度" label-for="input-7">
+                        <b-form-select id="input-7"
+                                       v-model="modalform.ticketPriority"
+                                       :options="selectPriority"
                                        required></b-form-select>
                     </b-form-group>
                 </b-form>
             </b-card-code>
         </b-modal>
 
-        <b-modal v-model="editModalShow" centered @ok="onEdit">
+        <!--<b-modal v-model="editModalShow" centered @ok="onEdit">
             <b-card-code title="修改使用者">
 
                 <b-form @reset="onReset">
@@ -178,7 +198,7 @@
                     </b-form-group>
                 </b-form>
             </b-card-code>
-        </b-modal>
+        </b-modal>-->
     </div>
 </template>
 
@@ -222,6 +242,7 @@
                     {
                         label: '單別',
                         field: 'ticketType',
+                        formatFn: this.formatType,
                     },
                     {
                         label: '摘要',
@@ -238,14 +259,17 @@
                     {
                         label: '狀態',
                         field: 'ticketStatus',
+                        formatFn: this.formatStatus,
                     },
                     {
                         label: '嚴重性',
                         field: 'ticketSevere',
+                        formatFn: this.formatSevere,
                     },
                     {
                         label: '優先程度',
                         field: 'ticketPriority',
+                        formatFn: this.formatPriority,
                     },
                     {
                         label: '操作',
@@ -257,42 +281,90 @@
                 modalShow: false,
                 editModalShow: false,
                 modalform: {
-                    Eid:'',
-                    Email: '',
-                    Pwd:'',
-                    UserName: '',
-                    RoleTid: '',                    
+                    //createDate:'',
+                    ticketType: '',
+                    summary:'',
+                    description: '',
+                    creator: '',
+                    ticketStatus: '',
+                    ticketSevere: '',
+                    ticketPriority: '',
                 },
                 editModalform: {
-                    Tid: '',
-                    Eid: '',
-                    Email: '',
-                    Pwd: '',
-                    UserName: '',
-                    RoleTid: ''
+                    //createDate: '',
+                    ticketType: '',
+                    summary: '',
+                    description: '',
+                    creator: '',
+                    ticketStatus: '',
+                    ticketSevere: '',
+                    ticketPriority: '',
                 },
-                selectRole: [{ text: '請選擇角色', value: null },],
+                selectType: [],
+                selectStatus: [],
+                selectSevere: [],
+                selectPriority: [],
                 currentEditId:''
             }
         },
         created() {
             this.getTicketList()
         },
-        methods: {
+        methods: {            
+            formatType(v) {
+                var index = this.selectType.map(function (e) { return e.value; }).indexOf(v);                
+                return this.selectType[index].text
+            },
+            formatStatus(v) {
+                var index = this.selectStatus.map(function (e) { return e.value; }).indexOf(v);
+                return this.selectStatus[index].text
+            },
+            formatSevere(v) {
+                var index = this.selectSevere.map(function (e) { return e.value; }).indexOf(v);
+                return this.selectSevere[index].text
+            },
+            formatPriority(v) {
+                var index = this.selectPriority.map(function (e) { return e.value; }).indexOf(v);
+                return this.selectPriority[index].text
+            },
             getTicketList() {
                 service.get('/api/Tickets')
                     .then(res => {
-                        this.rows = res.data
+                        this.rows = res.data.tickets
+                        res.data.selectType.forEach(v => {
+                            this.selectType.push({
+                                text: v.value,
+                                value: v.tid.toString()
+                            })
+                        })
+                        res.data.selectStatus.forEach(v => {
+                            this.selectStatus.push({
+                                text: v.value,
+                                value: v.tid.toString()
+                            })
+                        })
+                        res.data.selectSevere.forEach(v => {
+                            this.selectSevere.push({
+                                text: v.value,
+                                value: v.tid.toString()
+                            })
+                        })
+                        res.data.selectPriority.forEach(v => {
+                            this.selectPriority.push({
+                                text: v.value,
+                                value: v.tid.toString()
+                            })
+                        })
                     })
                     .catch(e => { 'api/user error' })
             },
             onSubmit(event) {
                 event.preventDefault()
-                service.post('api/Users', this.modalform)
+                service.post('api/Tickets', this.modalform)
                     .then(res => {
                         this.modalShow = false;
                         this.onReset()
-                        this.getUserList()
+                        this.getTicketList()
                         this.$swal.fire('提示', '新增成功!', 'success')
                         
                     }).catch(e => { 'api/user error' })
@@ -319,7 +391,45 @@
                 this.editModalform.Email = params.row.users.email
                 this.editModalform.RoleTid = params.row.users.roleTid
                 this.editModalform.Pwd = params.row.users.pwd
+            },
+            deleteRow(params) {
+
+            },
+            onNew() {
+                this.modalShow = !this.modalShow
+                this.modalform.creator = store.state.claims.UserName
+            },
+            checkRole(e) {
+                if (store.state.claims.RoleName.toUpperCase() == 'ADMINISTRATOR') return true;
+
+                if (e == 'add') {
+                    if (store.state.claims.RoleName.toUpperCase() == 'RD') {
+                        return false;
+                    }
+                    return true;
+                }
+                else if (e == 'edit') {
+                    if (store.state.claims.RoleName.toUpperCase() == 'RD') {
+                        return false;
+                    }
+                    return true;
+                } else if (e == 'delete') {
+                    if (store.state.claims.RoleName.toUpperCase() == 'RD') {
+                        return false;
+                    }
+                    return true;
+                } else if (e == 'handle') {
+                    if (store.state.claims.RoleName.toUpperCase() == 'RD') {
+                        return true;
+                    }
+                    return false;
+                } else if (e == 'finish') {
+                    if (store.state.claims.RoleName.toUpperCase() == 'RD') {
+                        return true;
+                    }
+                    return false;
+                }
             }
-        }
+        },
     }
 </script>

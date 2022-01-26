@@ -25,7 +25,22 @@ namespace TicketSystem.Controllers
         public async Task<ActionResult> GetSystemTickets()
         {
             var tickets = await _context.SystemTickets.ToListAsync();
-            return Ok(new { code = 20000, data = tickets });            
+            var selectType = await _context.SystemOptions.Where(x=>x.Option == "TicketType").ToListAsync();
+            var selectStatus = await _context.SystemOptions.Where(x => x.Option == "TicketStatus").ToListAsync();
+            var selectSevere = await _context.SystemOptions.Where(x => x.Option == "TicketSevere").ToListAsync();
+            var selectPriority = await _context.SystemOptions.Where(x => x.Option == "TicketPriority").ToListAsync();
+            return Ok(new
+            {
+                code = 20000,
+                data = new
+                {
+                    tickets,
+                    selectType,
+                    selectStatus,
+                    selectSevere,
+                    selectPriority,
+                }
+            });            
         }
 
         // GET: api/Tickets/5
@@ -80,10 +95,21 @@ namespace TicketSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<SystemTickets>> PostSystemTickets(SystemTickets systemTickets)
         {
+            var ticketid = _context.SystemTickets.Max(x => x.TicketId);
+            if(ticketid == null)
+            {
+                ticketid = "1";
+            }
+            else
+            {
+                ticketid = (int.Parse(ticketid) + 1).ToString();
+            }
+
+            systemTickets.TicketId = ticketid;
             _context.SystemTickets.Add(systemTickets);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSystemTickets", new { id = systemTickets.Tid }, systemTickets);
+            return Ok(new { code = 20000});
         }
 
         // DELETE: api/Tickets/5

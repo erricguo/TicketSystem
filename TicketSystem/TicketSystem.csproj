@@ -37,6 +37,7 @@
   <ItemGroup>
     <Folder Include="ClientApp\src\auth\api\" />
     <Folder Include="ClientApp\src\views\component\" />
+    <Folder Include="Exam\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
