@@ -33,17 +33,17 @@
 
                     <span v-if="props.column.field === 'action'">
                         <span>
-                            <b-button v-show="checkRole('edit')" variant="gradient-primary" class="mr-50" @click="editRow(props)">
+                            <b-button v-show="checkRole('edit')" variant="gradient-primary" class="mr-50" @click="editRow(props,'edit')">
                                 <feather-icon icon="Edit2Icon"
                                               class="mr-50" />
                                 <span>編輯</span>
                             </b-button>
-                            <b-button v-show="checkRole('handle')" variant="gradient-secondary" class="mr-50" @click="editRow(props)">
+                            <b-button v-show="checkRole('handle')" variant="gradient-secondary" class="mr-50" @click="editRow(props,'handle')">
                                 <feather-icon icon="Edit2Icon"
                                               class="mr-50" />
                                 <span>接單</span>
                             </b-button>
-                            <b-button v-show="checkRole('finish')" variant="gradient-success" class="mr-50" @click="editRow(props)">
+                            <b-button v-show="checkRole('finish')" variant="gradient-success" class="mr-50" @click="editRow(props,'finish')">
                                 <feather-icon icon="Edit2Icon"
                                               class="mr-50" />
                                 <span>結案</span>
@@ -116,14 +116,13 @@
 
                     <b-form-group id="input-group-2" label="摘要" label-for="input-2">
                         <b-form-input id="input-2"
-                                      v-model="modalform.summary"                                      
+                                      v-model="modalform.summary"
                                       required></b-form-input>
                     </b-form-group>
 
                     <b-form-group id="input-group-3" label="描述" label-for="input-3">
                         <b-form-input id="input-3"
-                                      v-model="modalform.description"
-                                      ></b-form-input>
+                                      v-model="modalform.description"></b-form-input>
                     </b-form-group>
 
                     <b-form-group id="input-group-4" label="建立者" label-for="input-4">
@@ -136,7 +135,8 @@
                         <b-form-select id="input-5"
                                        v-model="modalform.ticketStatus"
                                        :options="selectStatus"
-                                       required></b-form-select>
+                                       required
+                                       disabled></b-form-select>
                     </b-form-group>
 
                     <b-form-group id="input-group-6" label="嚴重性" label-for="input-6">
@@ -156,49 +156,103 @@
             </b-card-code>
         </b-modal>
 
-        <!--<b-modal v-model="editModalShow" centered @ok="onEdit">
-            <b-card-code title="修改使用者">
+        <b-modal v-model="editModalShow" centered @ok="onEdit">
+            <b-card-code title="新增案件">
 
-                <b-form @reset="onReset">
-                    <b-form-group id="input-group-2" label="Email" label-for="input-2">
+                <b-form @submit="onSubmit" @reset="onReset">
+
+                    <b-form-group id="input-group-1" label="單別" label-for="input-1">
+                        <b-form-select id="input-1"
+                                       v-model="editModalform.ticketType"
+                                       :options="selectType"
+                                       required></b-form-select>
+                    </b-form-group>
+
+                    <b-form-group id="input-group-2" label="摘要" label-for="input-2">
                         <b-form-input id="input-2"
-                                      v-model="editModalform.Email"
-                                      type="email"
-                                      placeholder=""
+                                      v-model="editModalform.summary"
                                       required></b-form-input>
                     </b-form-group>
 
-                    <b-form-group id="input-group-1" label="帳號:" label-for="input-1">
-                        <b-form-input id="input-1"
-                                      v-model="editModalform.Eid"
-                                      placeholder=""
-                                      required></b-form-input>
-                    </b-form-group>
-
-                    <b-form-group id="input-group-3" label="密碼" label-for="input-3">
+                    <b-form-group id="input-group-3" label="描述" label-for="input-3">
                         <b-form-input id="input-3"
-                                      v-model="editModalform.Pwd"
-                                      type="password"
-                                      placeholder=""
-                                      required></b-form-input>
+                                      v-model="editModalform.description"></b-form-input>
                     </b-form-group>
 
-                    <b-form-group id="input-group-4" label="姓名:" label-for="input-4">
+                    <b-form-group id="input-group-4" label="建立者" label-for="input-4">
                         <b-form-input id="input-4"
-                                      v-model="editModalform.UserName"
-                                      placeholder=""
+                                      v-model="editModalform.creator"
                                       required></b-form-input>
                     </b-form-group>
 
-                    <b-form-group id="input-group-5" label="用戶角色:" label-for="input-5">
+                    <b-form-group id="input-group-5" label="狀態" label-for="input-5">
                         <b-form-select id="input-5"
-                                       v-model="editModalform.RoleTid"
-                                       :options="selectRole"
+                                       v-model="editModalform.ticketStatus"
+                                       :options="selectStatus"
+                                       required
+                                       disabled></b-form-select>
+                    </b-form-group>
+
+                    <b-form-group id="input-group-6" label="嚴重性" label-for="input-6">
+                        <b-form-select id="input-6"
+                                       v-model="editModalform.ticketSevere"
+                                       :options="selectSevere"
+                                       required></b-form-select>
+                    </b-form-group>
+
+                    <b-form-group id="input-group-7" label="優先程度" label-for="input-7">
+                        <b-form-select id="input-7"
+                                       v-model="editModalform.ticketPriority"
+                                       :options="selectPriority"
                                        required></b-form-select>
                     </b-form-group>
                 </b-form>
             </b-card-code>
-        </b-modal>-->
+        </b-modal>
+
+        <!--<b-modal v-model="editModalShow" centered @ok="onEdit">
+        <b-card-code title="修改使用者">
+
+            <b-form @reset="onReset">
+                <b-form-group id="input-group-2" label="Email" label-for="input-2">
+                    <b-form-input id="input-2"
+                                  v-model="editModalform.Email"
+                                  type="email"
+                                  placeholder=""
+                                  required></b-form-input>
+                </b-form-group>
+
+                <b-form-group id="input-group-1" label="帳號:" label-for="input-1">
+                    <b-form-input id="input-1"
+                                  v-model="editModalform.Eid"
+                                  placeholder=""
+                                  required></b-form-input>
+                </b-form-group>
+
+                <b-form-group id="input-group-3" label="密碼" label-for="input-3">
+                    <b-form-input id="input-3"
+                                  v-model="editModalform.Pwd"
+                                  type="password"
+                                  placeholder=""
+                                  required></b-form-input>
+                </b-form-group>
+
+                <b-form-group id="input-group-4" label="姓名:" label-for="input-4">
+                    <b-form-input id="input-4"
+                                  v-model="editModalform.UserName"
+                                  placeholder=""
+                                  required></b-form-input>
+                </b-form-group>
+
+                <b-form-group id="input-group-5" label="用戶角色:" label-for="input-5">
+                    <b-form-select id="input-5"
+                                   v-model="editModalform.RoleTid"
+                                   :options="selectRole"
+                                   required></b-form-select>
+                </b-form-group>
+            </b-form>
+        </b-card-code>
+    </b-modal>-->
     </div>
 </template>
 
@@ -243,6 +297,10 @@
                         label: '單別',
                         field: 'ticketType',
                         formatFn: this.formatType,
+                    },
+                    {
+                        label: '單號',
+                        field: 'ticketId',
                     },
                     {
                         label: '摘要',
@@ -338,6 +396,10 @@
                             })
                         })
                         res.data.selectStatus.forEach(v => {
+                            //if ((store.state.claims.RoleName.toUpperCase() == 'QA' && v.value == '新建') ||
+                            //    (store.state.claims.RoleName.toUpperCase() == 'RD' && v.value == '處理中') ||
+                            //    (store.state.claims.RoleName.toUpperCase() == 'RD' && v.value == '結案') ||
+                            //    (store.state.claims.RoleName.toUpperCase() == 'ADMINISTRATOR' ))
                             this.selectStatus.push({
                                 text: v.value,
                                 value: v.tid.toString()
@@ -383,14 +445,21 @@
             onReset() {
                 this.modalform = this.$options.data().modalform
             },
-            editRow(params) {
+            editRow(params,status) {
                 this.editModalShow = !this.editModalShow
-                this.editModalform.Tid = params.row.users.tid
-                this.editModalform.Eid = params.row.users.eid
-                this.editModalform.UserName = params.row.users.userName
-                this.editModalform.Email = params.row.users.email
-                this.editModalform.RoleTid = params.row.users.roleTid
-                this.editModalform.Pwd = params.row.users.pwd
+                this.editModalform.ticketType = params.row.ticketType
+                this.editModalform.summary = params.row.summary
+                this.editModalform.description = params.row.description
+                this.editModalform.creator = params.row.creator
+                if (status == 'handle') {
+                    this.editModalform.ticketStatus = this.selectStatus[1].value
+                } else if (status == 'finish') {
+                    this.editModalform.ticketStatus = this.selectStatus[2].value
+                } else {
+                    this.editModalform.ticketStatus = params.row.ticketStatus
+                }
+                this.editModalform.ticketSevere = params.row.ticketSevere
+                this.editModalform.ticketPriority = params.row.ticketPriority
             },
             deleteRow(params) {
 
@@ -398,6 +467,7 @@
             onNew() {
                 this.modalShow = !this.modalShow
                 this.modalform.creator = store.state.claims.UserName
+                this.modalform.ticketStatus = this.selectStatus[0].value
             },
             checkRole(e) {
                 if (store.state.claims.RoleName.toUpperCase() == 'ADMINISTRATOR') return true;
@@ -429,7 +499,7 @@
                     }
                     return false;
                 }
-            }
+            },
         },
     }
 </script>
